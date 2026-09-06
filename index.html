@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basement Library</title>
+
+<style>
+:root {
+  --green:#123d37;
+  --green2:#1c574e;
+  --cream:#f7f3e9;
+  --white:#fffdf8;
+  --gold:#c18a38;
+  --line:#ddd7ca;
+  --red:#9d3d3d;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--cream);
+  color:#17211e;
+}
+
+header {
+  background:var(--green);
+  color:white;
+  padding:18px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+}
+
+.logo {
+  font-size:22px;
+  font-weight:800;
+}
+
+nav {
+  display:flex;
+  gap:12px;
+}
+
+nav button {
+  background:none;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+main {
+  max-width:1000px;
+  margin:auto;
+  padding:30px 20px 80px;
+}
+
+.card {
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:18px;
+}
+
+h1,h2,h3 {
+  color:var(--green);
+}
+
+input, select, textarea {
+  width:100%;
+  padding:12px;
+  margin:7px 0 14px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:16px;
+}
+
+textarea {
+  min-height:100px;
+}
+
+button.primary {
+  background:var(--green);
+  color:white;
+  border:none;
+  padding:12px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+button.secondary {
+  background:white;
+  color:var(--green);
+  border:1px solid var(--green);
+  padding:10px 15px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+button.danger {
+  background:var(--red);
+  color:white;
+  border:none;
+  padding:9px 14px;
+  border-radius:9px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+
+.hidden { display:none !important; }
+
+.item {
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.badge {
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:50px;
+  background:#e5eee9;
+  color:var(--green);
+  font-size:13px;
+  font-weight:bold;
+}
+
+.bronze { background:#e3c1a5; }
+.silver { background:#d8dcdf; }
+.gold { background:#efd298; }
+.diamond { background:#cce9ef; }
+
+.tier {
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+}
+
+.error { color:#a22; }
+.success { color:#287139; }
+
+small { color:#69716e; }
+
+@media(max-width:700px) {
+  .grid { grid-template-columns:1fr; }
+
+  header {
+    align-items:flex-start;
+    flex-direction:column;
+    gap:12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">📚 Basement Library</div>
+
+  <nav id="navLoggedIn" class="hidden">
+    <button onclick="showPage('dashboard')">Home</button>
+    <button onclick="showPage('appointments')">Visits</button>
+    <button onclick="showPage('requests')">Requests</button>
+    <button onclick="showPage('notifications')">Notifications</button>
+    <button id="adminButton" class="hidden"
+      onclick="showPage('admin')">Admin</button>
+    <button onclick="logout()">Logout</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- LOGIN -->
+
+<section id="authPage">
+
+<div class="card">
+
+<h1>Basement Library</h1>
+
+<p>
+Books • Community • Cozy Reading
+</p>
+
+<div class="grid">
+
+<div>
+
+<h2>Log in</h2>
+
+<input id="loginEmail"
+type="email"
+placeholder="Email">
+
+<input id="loginPassword"
+type="password"
+placeholder="Password">
+
+<button class="primary"
+onclick="login()">
+Log in
+</button>
+
+</div>
+
+
+<div>
+
+<h2>Create account</h2>
+
+<input id="registerName"
+placeholder="Your name">
+
+<input id="registerEmail"
+type="email"
+placeholder="Email">
+
+<input id="registerPassword"
+type="password"
+placeholder="Password">
+
+<label>Membership</label>
+
+<select id="registerTier">
+<option>Bronze</option>
+<option>Silver</option>
+<option>Gold</option>
+<option>Diamond+</option>
+</select>
+
+<button class="primary"
+onclick="register()">
+Join Library
+</button>
+
+</div>
+
+</div>
+
+<p id="authMessage"></p>
+
+</div>
+
+</section>
+
+
+<!-- DASHBOARD -->
+
+<section id="dashboardPage" class="hidden">
+
+<div class="card">
+
+<h1 id="welcome">
+Welcome
+</h1>
+
+<div id="membershipBadge"
+class="badge">
+Member
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="card">
+
+<h2>My Loans</h2>
+
+<div id="loanList">
+No books currently borrowed.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Upcoming Visits</h2>
+
+<div id="appointmentPreview">
+No appointments.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Library News</h2>
+
+<div id="notificationPreview">
+No new notifications.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Quick Actions</h2>
+
+<button class="secondary"
+onclick="showPage('appointments')">
+Book a Visit
+</button>
+
+<button class="secondary"
+onclick="showPage('requests')">
+Request Something
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- APPOINTMENTS -->
+
+<section id="appointmentsPage"
+class="hidden">
+
+<div class="grid">
+
+<div class="card">
+
+<h1>Book a Visit</h1>
+
+<label>Date</label>
+<input type="date"
+id="appointmentDate">
+
+<label>Time</label>
+<input type="time"
+id="appointmentTime">
+
+<label>Purpose</label>
+
+<select id="appointmentPurpose">
+
+<option>Browse / Borrow Books</option>
+<option>Return Books</option>
+<option>Snack Day</option>
+<option>Book Pickup</option>
+<option>3D Printing Demo</option>
+<option>Other</option>
+
+</select>
+
+<label>Notes</label>
+
+<textarea
+id="appointmentNotes"
+placeholder="Optional...">
+</textarea>
+
+<button
+class="primary"
+onclick="createAppointment()">
+Request Visit
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>My Visits</h2>
+
+<div id="appointmentList"></div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- REQUESTS -->
+
+<section id="requestsPage"
+class="hidden">
+
+<div class="grid">
+
+<div class="card">
+
+<h1>Library Request</h1>
+
+<label>Type</label>
+
+<select id="requestType">
+
+<option>Book Request</option>
+<option>Book Reservation</option>
+<option>Series Hold</option>
+<option>Recommendation</option>
+<option>Kids' Reading Pack</option>
+<option>Chinese Reading Pack</option>
+<option>English Reading Pack</option>
+<option>Custom Bookmark</option>
+<option>3D Printing Request</option>
+<option>Other</option>
+
+</select>
+
+<label>Details</label>
+
+<textarea
+id="requestDetails"
+placeholder="Tell us what you want...">
+</textarea>
+
+<button
+class="primary"
+onclick="createRequest()">
+Submit Request
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>My Requests</h2>
+
+<div id="requestList"></div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- NOTIFICATIONS -->
+
+<section id="notificationsPage"
+class="hidden">
+
+<div class="card">
+
+<h1>Notifications</h1>
+
+<div id="notificationList"></div>
+
+</div>
+
+</section>
+
+
+<!-- ADMIN -->
+
+<section id="adminPage"
+class="hidden">
+
+<h1>Library Admin</h1>
+
+
+<div class="grid">
+
+<div class="card">
+
+<h2>Send Notification</h2>
+
+<input
+id="notificationTitle"
+placeholder="Title">
+
+<textarea
+id="notificationMessage"
+placeholder="Message">
+</textarea>
+
+<button class="primary"
+onclick="sendNotification()">
+Send to Everyone
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Add Loan</h2>
+
+<input
+id="loanUserEmail"
+type="email"
+placeholder="Member email">
+
+<input
+id="loanBookTitle"
+placeholder="Book title">
+
+<label>Due date</label>
+
+<input
+id="loanDue"
+type="date">
+
+<button
+class="primary"
+onclick="addLoan()">
+Record Loan
+</button>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Appointment Requests</h2>
+
+<div id="adminAppointments"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Member Requests</h2>
+
+<div id="adminRequests"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Active Loans</h2>
+
+<div id="adminLoans"></div>
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<script type="module">
+
+import {
+  initializeApp
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
+  getDoc,
+  getDocs,
+  doc,
+  query,
+  where,
+  orderBy,
+  updateDoc,
+  serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+/* ===============================
+
+PASTE YOUR FIREBASE CONFIG HERE
+
+=============================== */
+
+const firebaseConfig = {
+
+  apiKey: "YOUR_API_KEY",
+
+  authDomain:
+  "YOUR_PROJECT.firebaseapp.com",
+
+  projectId:
+  "YOUR_PROJECT_ID",
+
+  storageBucket:
+  "YOUR_PROJECT.firebasestorage.app",
+
+  messagingSenderId:
+  "YOUR_SENDER_ID",
+
+  appId:
+  "YOUR_APP_ID"
+
+};
+
+
+/* =============================== */
+
+const app =
+initializeApp(firebaseConfig);
+
+const auth =
+getAuth(app);
+
+const db =
+getFirestore(app);
+
+let userProfile = null;
+
+
+/* PAGES */
+
+window.showPage = function(page) {
+
+  [
+    "dashboard",
+    "appointments",
+    "requests",
+    "notifications",
+    "admin"
+  ].forEach(p => {
+
+    document
+    .getElementById(p+"Page")
+    .classList.add("hidden");
+
+  });
+
+  document
+  .getElementById(page+"Page")
+  .classList.remove("hidden");
+
+};
+
+
+/* REGISTER */
+
+window.register = async function() {
+
+  const name =
+  registerName.value.trim();
+
+  const email =
+  registerEmail.value.trim();
+
+  const password =
+  registerPassword.value;
+
+  const tier =
+  registerTier.value;
+
+  try {
+
+    const result =
+    await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    await setDoc(
+      doc(db,"users",result.user.uid),
+      {
+        name,
+        email,
+        tier,
+        role:"member",
+        createdAt:serverTimestamp()
+      }
+    );
+
+  }
+
+  catch(err) {
+
+    authMessage.textContent =
+    err.message;
+
+  }
+
+};
+
+
+/* LOGIN */
+
+window.login = async function() {
+
+  try {
+
+    await signInWithEmailAndPassword(
+      auth,
+      loginEmail.value,
+      loginPassword.value
+    );
+
+  }
+
+  catch(err) {
+
+    authMessage.textContent =
+    "Login failed.";
+
+  }
+
+};
+
+
+/* LOGOUT */
+
+window.logout = async function() {
+
+  await signOut(auth);
+
+};
+
+
+/* AUTH WATCHER */
+
+onAuthStateChanged(
+auth,
+async user => {
+
+  if(!user){
+
+    authPage.classList.remove("hidden");
+
+    navLoggedIn.classList.add("hidden");
+
+    [
+      dashboardPage,
+      appointmentsPage,
+      requestsPage,
+      notificationsPage,
+      adminPage
+    ]
+    .forEach(x=>x.classList.add("hidden"));
+
+    return;
+
+  }
+
+  authPage.classList.add("hidden");
+
+  navLoggedIn.classList.remove("hidden");
+
+  const snap =
+  await getDoc(
+    doc(db,"users",user.uid)
+  );
+
+  userProfile =
+  snap.data();
+
+  welcome.textContent =
+  "Hi, " + userProfile.name;
+
+  membershipBadge.textContent =
+  userProfile.tier + " Member";
+
+  if(userProfile.role === "admin"){
+
+    adminButton
+    .classList.remove("hidden");
+
+  }
+
+  showPage("dashboard");
+
+  await loadEverything();
+
+});
+
+
+/* APPOINTMENTS */
+
+window.createAppointment =
+async function(){
+
+  await addDoc(
+    collection(db,"appointments"),
+    {
+
+      userId:auth.currentUser.uid,
+
+      userEmail:
+      auth.currentUser.email,
+
+      date:
+      appointmentDate.value,
+
+      time:
+      appointmentTime.value,
+
+      purpose:
+      appointmentPurpose.value,
+
+      notes:
+      appointmentNotes.value,
+
+      status:"Pending",
+
+      createdAt:
+      serverTimestamp()
+
+    }
+  );
+
+  appointmentNotes.value="";
+
+  await loadAppointments();
+
+};
+
+
+async function loadAppointments(){
+
+  const q =
+  query(
+    collection(db,"appointments"),
+    where(
+      "userId",
+      "==",
+      auth.currentUser.uid
+    )
+  );
+
+  const snap =
+  await getDocs(q);
+
+  appointmentList.innerHTML="";
+  appointmentPreview.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const a=d.data();
+
+    const html=`
+
+    <div class="item">
+
+      <strong>
+      ${a.date} • ${a.time}
+      </strong>
+
+      <br>
+
+      ${a.purpose}
+
+      <br>
+
+      <span class="badge">
+      ${a.status}
+      </span>
+
+    </div>
+
+    `;
+
+    appointmentList
+    .innerHTML += html;
+
+    appointmentPreview
+    .innerHTML += html;
+
+  });
+
+}
+
+
+/* REQUESTS */
+
+window.createRequest =
+async function(){
+
+  await addDoc(
+    collection(db,"requests"),
+    {
+
+      userId:
+      auth.currentUser.uid,
+
+      userEmail:
+      auth.currentUser.email,
+
+      type:
+      requestType.value,
+
+      details:
+      requestDetails.value,
+
+      status:"Open",
+
+      createdAt:
+      serverTimestamp()
+
+    }
+  );
+
+  requestDetails.value="";
+
+  loadRequests();
+
+};
+
+
+async function loadRequests(){
+
+  const q =
+  query(
+    collection(db,"requests"),
+    where(
+      "userId",
+      "==",
+      auth.currentUser.uid
+    )
+  );
+
+  const snap =
+  await getDocs(q);
+
+  requestList.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const r=d.data();
+
+    requestList.innerHTML += `
+
+    <div class="item">
+
+    <strong>
+    ${r.type}
+    </strong>
+
+    <p>
+    ${r.details}
+    </p>
+
+    <span class="badge">
+    ${r.status}
+    </span>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+/* NOTIFICATIONS */
+
+async function loadNotifications(){
+
+  const snap =
+  await getDocs(
+    collection(db,"notifications")
+  );
+
+  notificationList.innerHTML="";
+  notificationPreview.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const n=d.data();
+
+    const html=`
+
+    <div class="item">
+
+      <strong>
+      ${n.title}
+      </strong>
+
+      <p>
+      ${n.message}
+      </p>
+
+    </div>
+
+    `;
+
+    notificationList
+    .innerHTML += html;
+
+    notificationPreview
+    .innerHTML += html;
+
+  });
+
+}
+
+
+/* LOANS */
+
+async function loadLoans(){
+
+  const q =
+  query(
+    collection(db,"loans"),
+    where(
+      "userId",
+      "==",
+      auth.currentUser.uid
+    ),
+    where(
+      "returned",
+      "==",
+      false
+    )
+  );
+
+  const snap =
+  await getDocs(q);
+
+  loanList.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const l=d.data();
+
+    loanList.innerHTML += `
+
+    <div class="item">
+
+    <strong>
+    ${l.bookTitle}
+    </strong>
+
+    <br>
+
+    Due ${l.dueDate}
+
+    </div>
+
+    `;
+
+  });
+
+  if(snap.empty){
+
+    loanList.innerHTML =
+    "No books currently borrowed.";
+
+  }
+
+}
+
+
+/* ADMIN NOTIFICATIONS */
+
+window.sendNotification =
+async function(){
+
+  await addDoc(
+    collection(db,"notifications"),
+    {
+
+      title:
+      notificationTitle.value,
+
+      message:
+      notificationMessage.value,
+
+      createdAt:
+      serverTimestamp()
+
+    }
+  );
+
+  notificationTitle.value="";
+  notificationMessage.value="";
+
+  alert("Notification sent.");
+
+};
+
+
+/* ADMIN APPOINTMENTS */
+
+async function loadAdminAppointments(){
+
+  if(
+    !userProfile ||
+    userProfile.role !== "admin"
+  ) return;
+
+  const snap =
+  await getDocs(
+    collection(db,"appointments")
+  );
+
+  adminAppointments.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const a=d.data();
+
+    adminAppointments.innerHTML += `
+
+    <div class="item">
+
+      <strong>
+      ${a.userEmail}
+      </strong>
+
+      <br>
+
+      ${a.date}
+      ${a.time}
+
+      <br>
+
+      ${a.purpose}
+
+      <br><br>
+
+      <button
+      class="secondary"
+      onclick="
+      updateAppointment(
+      '${d.id}',
+      'Approved'
+      )">
+      Approve
+      </button>
+
+      <button
+      class="danger"
+      onclick="
+      updateAppointment(
+      '${d.id}',
+      'Declined'
+      )">
+      Decline
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+window.updateAppointment =
+async function(id,status){
+
+  await updateDoc(
+    doc(db,"appointments",id),
+    {status}
+  );
+
+  loadAdminAppointments();
+
+};
+
+
+/* ADMIN REQUESTS */
+
+async function loadAdminRequests(){
+
+  if(
+    !userProfile ||
+    userProfile.role !== "admin"
+  ) return;
+
+  const snap =
+  await getDocs(
+    collection(db,"requests")
+  );
+
+  adminRequests.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const r=d.data();
+
+    adminRequests.innerHTML += `
+
+    <div class="item">
+
+      <strong>
+      ${r.userEmail}
+      </strong>
+
+      <br>
+
+      ${r.type}
+
+      <p>
+      ${r.details}
+      </p>
+
+      <button
+      class="secondary"
+      onclick="
+      updateRequest(
+      '${d.id}',
+      'Accepted'
+      )">
+      Accept
+      </button>
+
+      <button
+      class="secondary"
+      onclick="
+      updateRequest(
+      '${d.id}',
+      'Completed'
+      )">
+      Complete
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+window.updateRequest =
+async function(id,status){
+
+  await updateDoc(
+    doc(db,"requests",id),
+    {status}
+  );
+
+  loadAdminRequests();
+
+};
+
+
+/* ADMIN LOANS */
+
+window.addLoan =
+async function(){
+
+  const email =
+  loanUserEmail.value.trim();
+
+  const userQuery =
+  query(
+    collection(db,"users"),
+    where(
+      "email",
+      "==",
+      email
+    )
+  );
+
+  const userSnap =
+  await getDocs(userQuery);
+
+  if(userSnap.empty){
+
+    alert("Member not found.");
+
+    return;
+
+  }
+
+  const member =
+  userSnap.docs[0];
+
+  await addDoc(
+    collection(db,"loans"),
+    {
+
+      userId:
+      member.id,
+
+      userEmail:
+      email,
+
+      bookTitle:
+      loanBookTitle.value,
+
+      dueDate:
+      loanDue.value,
+
+      returned:false,
+
+      createdAt:
+      serverTimestamp()
+
+    }
+  );
+
+  loanBookTitle.value="";
+  loanUserEmail.value="";
+
+  loadAdminLoans();
+
+};
+
+
+async function loadAdminLoans(){
+
+  if(
+    !userProfile ||
+    userProfile.role !== "admin"
+  ) return;
+
+  const q =
+  query(
+    collection(db,"loans"),
+    where(
+      "returned",
+      "==",
+      false
+    )
+  );
+
+  const snap =
+  await getDocs(q);
+
+  adminLoans.innerHTML="";
+
+  snap.forEach(d=>{
+
+    const l=d.data();
+
+    adminLoans.innerHTML += `
+
+    <div class="item">
+
+      <strong>
+      ${l.bookTitle}
+      </strong>
+
+      <br>
+
+      ${l.userEmail}
+
+      <br>
+
+      Due ${l.dueDate}
+
+      <br><br>
+
+      <button
+      class="primary"
+      onclick="
+      returnLoan(
+      '${d.id}'
+      )">
+      Mark Returned
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+window.returnLoan =
+async function(id){
+
+  await updateDoc(
+    doc(db,"loans",id),
+    {
+
+      returned:true,
+
+      returnedAt:
+      serverTimestamp()
+
+    }
+  );
+
+  loadAdminLoans();
+
+};
+
+
+/* LOAD EVERYTHING */
+
+async function loadEverything(){
+
+  await Promise.all([
+
+    loadAppointments(),
+
+    loadRequests(),
+
+    loadNotifications(),
+
+    loadLoans()
+
+  ]);
+
+  if(
+    userProfile.role === "admin"
+  ){
+
+    await Promise.all([
+
+      loadAdminAppointments(),
+
+      loadAdminRequests(),
+
+      loadAdminLoans()
+
+    ]);
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
